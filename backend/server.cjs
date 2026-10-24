@@ -307,6 +307,54 @@ app.post(
   }
 );
 
+ // Preview resource
+app.get("/api/resources/:id/preview", async (req, res) => {
+  try {
+    const resource = await Resource.findById(req.params.id);
+
+    if (!resource || !resource.filePath) {
+      return res.status(404).send("Resource not found");
+    }
+
+    const fileName = path.basename(resource.filePath);
+    const filePath = path.join(uploadsFolder, fileName);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).send("File not found");
+    }
+
+    const extension = path.extname(fileName).toLowerCase();
+
+    const mimeTypes = {
+      ".pdf": "application/pdf",
+      ".png": "image/png",
+      ".jpg": "image/jpeg",
+      ".jpeg": "image/jpeg",
+      ".gif": "image/gif",
+      ".webp": "image/webp",
+      ".txt": "text/plain; charset=utf-8",
+    };
+
+    const contentType = mimeTypes[extension];
+
+    if (!contentType) {
+      return res.status(415).send("Preview is not supported for this file type.");
+    }
+
+    res.setHeader("Content-Type", contentType);
+    res.setHeader(
+      "Content-Disposition",
+      `inline; filename="${fileName}"`
+    );
+
+    res.sendFile(filePath);
+  } catch (error) {
+    console.error("Preview error:", error);
+    res.status(500).send("Unable to preview resource");
+  }
+});
+
+
 // Download resource
 app.get(
   "/api/resources/:id/download",

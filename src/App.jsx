@@ -464,9 +464,19 @@ function App() {
                 }
               />
 
-              <button type="button">
-                Search
-              </button>
+              <button
+  type="button"
+  onClick={() => {
+    document
+      .getElementById("resources-section")
+      ?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+  }}
+>
+  Search
+</button>
 
             </div>
 
@@ -777,6 +787,68 @@ function App() {
           <p>
             Type: {selectedResource.type}
           </p>
+
+{/* Resource Preview */}
+<div className="resource-preview">
+  <h3>Preview Notes</h3>
+
+  {(() => {
+    const filePath = selectedResource.filePath || "";
+
+const extension = filePath
+  .split("?")[0]
+  .split("#")[0]
+  .split(/[\\/]/)
+  .pop()
+  .split(".")
+  .pop()
+  .toLowerCase();
+
+    const previewUrl =
+      `http://localhost:5000/api/resources/${selectedResource._id}/preview`;
+
+    if (extension === "pdf" || extension === "txt") {
+      return (
+        <iframe
+          src={previewUrl}
+          title="Resource Preview"
+          style={{
+            width: "100%",
+            height: "600px",
+            border: "1px solid #ddd",
+            borderRadius: "10px",
+          }}
+        />
+      );
+    }
+
+    if (
+      ["jpg", "jpeg", "png", "gif", "webp"].includes(extension)
+    ) {
+      return (
+        <img
+          src={previewUrl}
+          alt={selectedResource.title}
+          style={{
+            display: "block",
+            maxWidth: "100%",
+            maxHeight: "600px",
+            margin: "0 auto",
+            borderRadius: "10px",
+          }}
+        />
+      );
+    }
+
+    return (
+      <p>
+        Preview is not available for this file type.
+        You can still download the resource below.
+      </p>
+    );
+  })()}
+</div>
+
 
           {/* Rating */}
           <div className="rating">
