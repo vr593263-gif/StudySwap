@@ -6,8 +6,17 @@ import Signup from "./signup";
 import ForgotPassword from "./forgotpassword";
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+  return localStorage.getItem("studyswap_logged_in") === "true";
+});
+
+const [user, setUser] = useState(() => {
+  try {
+    return JSON.parse(localStorage.getItem("studyswap_user")) || null;
+  } catch {
+    return null;
+  }
+});
   const [showSignup, setShowSignup] = useState(false);
   const [showForgotPassword, setShowForgotPassword] =
   useState(false);
@@ -325,10 +334,16 @@ function App() {
 
   // Navbar - Home
     const handleLogin = (userData) => {
-    setUser(userData);
-    setIsLoggedIn(true);
-  };
+  localStorage.setItem("studyswap_logged_in", "true");
+  localStorage.setItem("studyswap_user", JSON.stringify(userData));
+
+  setUser(userData);
+  setIsLoggedIn(true);
+};
   const handleSignup = (userData) => {
+  localStorage.setItem("studyswap_logged_in", "true");
+  localStorage.setItem("studyswap_user", JSON.stringify(userData));
+
   setUser(userData);
   setIsLoggedIn(true);
   setShowSignup(false);
